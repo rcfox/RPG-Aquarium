@@ -1,4 +1,4 @@
-package Goals::FindKill;
+package Goals::WaitFindKill;
 use Moose;
 use Goals::Kill;
 
@@ -11,6 +11,13 @@ has 'to_find' =>
         required => 1,
     );
 
+has 'max_distance' =>
+    (
+        is => 'rw',
+        isa => 'Int',
+        required => 1,
+    );
+
 sub do_goal
 {
     my $self = shift;
@@ -18,17 +25,15 @@ sub do_goal
     my $added = 0;
 
     my @choices = sort { $owner->distance($a) <=> $owner->distance($b) }
-                  grep {$_->does($self->to_find)}
+                  grep {$_->does($self->to_find) && $owner->distance($_) <= $self->max_distance}
                   @{$owner->container->all_contents};
 
     if (!@choices)
     {
-        $owner->complete_goal;
         return;
     }
 
     $owner->add_goal(new Goals::Kill(target=>$choices[0]));
-    $owner->current_goal->do_goal;
 }
 
  __PACKAGE__->meta->make_immutable;

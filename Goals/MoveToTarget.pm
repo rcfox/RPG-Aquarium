@@ -1,19 +1,12 @@
-package Goals::Move;
+package Goals::MoveToTarget;
 use Moose;
 
 with 'Goal', 'PhysicalLocation';
 
-has 'x' =>
+has 'target' =>
     (
         is => 'rw',
-        isa => 'Int',
-        required => 1,
-    );
-
-has 'y' =>
-    (
-        is => 'rw',
-        isa => 'Int',
+        isa => 'Living',
         required => 1,
     );
 
@@ -21,9 +14,9 @@ sub do_goal
 {
     my $self = shift;
     my $owner = $self->owner;
-    my $moved = $owner->pathfind($self->x,$self->y);
+    my $moved = $owner->pathfind($self->target->x,$self->target->y);
 
-    if (!$moved || $self->distance($owner) == 1)
+    if (!$moved || $self->target->hp <= 0 || $owner->distance($self->target) == 1)
     {
         $owner->complete_goal;
     }

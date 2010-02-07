@@ -1,6 +1,6 @@
 package Goals::Kill;
 use Moose;
-use Goals::Move;
+use Goals::MoveToTarget;
 
 with 'Goal';
 
@@ -23,7 +23,7 @@ sub do_goal
     }
     else
     {
-        $owner->add_goal(new Goals::Move(x=>$target->x,y=>$target->y));
+        $owner->add_goal(new Goals::MoveToTarget(target=>$target));
         $owner->current_goal->do_goal;
     }
 
@@ -33,4 +33,5 @@ sub do_goal
     }
 }
 
+ __PACKAGE__->meta->make_immutable;
 1;
