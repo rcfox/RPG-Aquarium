@@ -53,7 +53,7 @@ for(1..50)
 
     my $m = new Monster(name => 'Monster'.$_, x => $x, y => $y, max_hp => 40, gfx_color=>$monster_clr);
     $m->add_goal(new Goals::Nothing);
-    $m->add_goal(new Goals::FindKill(to_find=>'GoodGuy');
+    $m->add_goal(new Goals::FindKill(to_find=>'GoodGuy'));
     $room->add_content($m);
 }
 
