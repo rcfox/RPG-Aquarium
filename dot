@@ -1,0 +1,16 @@
+digraph G {
+ExperienceLevel->Named;
+ExplodesOnDeath->Living;
+Fighter->Named;
+Living->Named;
+Living->PhysicalLocation;
+Monster->PhysicalLocation;
+Monster->Living;
+Monster->Fighter;
+Monster->ExplodesOnDeath;
+Object->PhysicalLocation;
+Person->PhysicalLocation;
+Person->ExperienceLevel;
+Person->Living;
+Person->Fighter;
+}
