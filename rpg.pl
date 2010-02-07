@@ -5,7 +5,7 @@ use SDL::Surface;
 use SDL::Rect;
 use SDL::Color;
 
-my $app = new SDL::App(-title=>"RPG Aquarium", -width=>640, -height=>480, -depth=>32);
+my $app = new SDL::App(-title=>"RPG Aquarium", -width=>640, -height=>480, -depth=>16);
 
 my $hero_clr = new SDL::Color(-r=>0,-g=>0,-b=>255);
 my $monster_clr = new SDL::Color(-r=>255,-g=>0,-b=>0);
@@ -29,8 +29,8 @@ for(1..15)
 
     do
     {
-        $x = int(rand(20));
-        $y = int(rand(20));
+        $x = int(rand(160));
+        $y = int(rand(120));
     } while($room->check_collision($x,$y));
     
     my $hero = new Person(name => 'Hero'.$_, x => $x, y => $y, max_hp => 100, attack_range => 2, gfx_color=>$hero_clr);
@@ -40,20 +40,20 @@ for(1..15)
 }
 
 my @monsters;
-for(1..30)
+for(1..50)
 {
     my $x;
     my $y;
 
     do
     {
-        $x = int(rand(20));
-        $y = int(rand(20));
+        $x = int(rand(160));
+        $y = int(rand(120));
     } while($room->check_collision($x,$y));
 
     my $m = new Monster(name => 'Monster'.$_, x => $x, y => $y, max_hp => 40, gfx_color=>$monster_clr);
     $m->add_goal(new Goals::Nothing);
-    $m->add_goal(new Goals::FindKill(to_find=>'GoodGuy'));
+    $m->add_goal(new Goals::FindKill(to_find=>'GoodGuy');
     $room->add_content($m);
 }
 
