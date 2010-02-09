@@ -29,7 +29,7 @@ sub pathfind
     {
         $moved = $self->move($x/abs($x),0);
     }
-    elsif (abs($y) > 0)
+    if (abs($y) > 0)
     {
         $moved = $self->move(0,$y/abs($y));
     }
