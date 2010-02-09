@@ -8,7 +8,7 @@ use Container;
 has 'container' =>
     (
         is => 'rw',
-        isa => 'Container',        
+        isa => 'Maybe[Container]',        
     );
 
 has 'x' =>
