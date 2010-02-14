@@ -10,22 +10,38 @@ has 'contents' =>
         default => sub{{}},
     );
 
+has 'width' =>
+    (
+        is => 'rw',
+        isa => 'Int',
+        required => 1,
+    );
+
+has 'height' =>
+    (
+        is => 'rw',
+        isa => 'Int',
+        required => 1,
+    );
+
 has 'map' =>
     (
         is => 'rw',
         isa => 'Any',
+        lazy => 1,
         default => sub
         {
-            AI::Pathfinding::AStar::Rectangle->new({width=>160, height=>120});            
+            my $self = shift;
+            AI::Pathfinding::AStar::Rectangle->new({width=>$self->width, height=>$self->width});            
         },
     );
 
 sub BUILD
 {
     my $self = shift;
-    for(my $p = 1; $p < 159; ++$p)
+    for(my $p = 1; $p < $self->width-1; ++$p)
     {
-        for(my $q = 1; $q < 119; ++$q)
+        for(my $q = 1; $q < $self->height-1; ++$q)
         {
             $self->map->set_passability($p,$q,1);
         }
@@ -98,7 +114,7 @@ sub check_collision
     my $x = shift;
     my $y = shift;
 
-    return 1 if ($x < 0 || $x > 159 || $y < 0 || $y > 119);
+    return 1 if ($x < 0 || $x > $self->width-1 || $y < 0 || $y > $self->height-1);
 
     my $val = $self->contents->{$x}->{$y};
     return ($val ? 1 : 0);
