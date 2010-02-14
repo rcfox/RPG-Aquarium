@@ -17,6 +17,27 @@ sub move
     return 0;
 }
 
+sub move_by_dir
+{
+    my $self = shift;
+    my $dir = shift;
+    my $moved = 0;
+    
+    if ($dir)
+    {
+        $moved = $self->move(-1,1)  if ($dir == 1);
+        $moved = $self->move(0,1)   if ($dir == 2);
+        $moved = $self->move(1,1)   if ($dir == 3);
+        $moved = $self->move(-1,0)  if ($dir == 4);
+        $moved = $self->move(1,0)   if ($dir == 6);
+        $moved = $self->move(-1,-1) if ($dir == 7);
+        $moved = $self->move(0,-1)  if ($dir == 8);
+        $moved = $self->move(1,-1)  if ($dir == 9);
+    }
+
+    return $moved;
+}
+
 sub pathfind
 {
     my $self = shift;
@@ -36,17 +57,7 @@ sub pathfind
     
     my $dir = substr($path,0,1);
 
-    if ($dir)
-    {
-        $moved = $self->move(-1,1)  if ($dir == 1);
-        $moved = $self->move(0,1)   if ($dir == 2);
-        $moved = $self->move(1,1)   if ($dir == 3);
-        $moved = $self->move(-1,0)  if ($dir == 4);
-        $moved = $self->move(1,0)   if ($dir == 6);
-        $moved = $self->move(-1,-1) if ($dir == 7);
-        $moved = $self->move(0,-1)  if ($dir == 8);
-        $moved = $self->move(1,-1)  if ($dir == 9);
-    }
+    $moved = $self->move_by_dir($dir);
 
     return $moved;
 }
