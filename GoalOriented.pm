@@ -29,4 +29,10 @@ sub current_goal
     return $self->goal_stack->[0];
 }
 
+sub do_goal
+{
+    my $self = shift;
+    $self->current_goal->do_goal;
+}
+
 1;

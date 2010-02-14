@@ -1,15 +1,28 @@
-package Goals::Gather;
+package Goals::Find;
 use Moose;
-use Goals::Pickup;
 
 with 'Goal';
 
-has 'to_find' =>
+has 'find' =>
     (
         is => 'rw',
         isa => 'Str',
         required => 1,
     );
+
+has 'and_do' =>
+    (
+        is => 'rw',
+        isa => 'CodeRef',
+        required => 1,
+    );
+
+has 'if' =>
+    (
+        is => 'rw',
+        isa => 'CodeRef',
+        default => sub{sub{1}},
+    );        
 
 sub do_goal
 {
@@ -18,7 +31,7 @@ sub do_goal
     my $added = 0;
 
     my @choices = sort { $owner->distance($a) <=> $owner->distance($b) }
-                  grep {$_ != $self->owner && $_->does('Targetable') && !$_->targeter && $_->does($self->to_find)}
+                  grep {$_ != $self->owner && $_->does($self->find) && $self->if->($_) }
                   @{$owner->container->all_contents};
 
     if (!@choices)
@@ -27,9 +40,7 @@ sub do_goal
         return;
     }
 
-    my $target = $choices[0];
-    $target->targeter($owner);
-    $owner->add_goal(new Goals::Pickup(target=>$target));
+    $owner->add_goal($self->and_do->($choices[0]));
     $owner->current_goal->do_goal;
 }
 

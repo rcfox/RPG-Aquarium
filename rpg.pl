@@ -26,60 +26,49 @@ use Goals::Persecute;
 use Goals::Nothing;
 use Goals::Move;
 use Goals::Wander;
+use Goals::Find;
+use Goals::Pickup;
 
 my $room = new Room(width => 160, height => 120);
 
 my @heroes;
-for (1..20)
-{
-    my $x;
-    my $y;
-
-    do
-    {
-        $x = int(rand($room->width));
-        $y = int(rand($room->height));
-    } while ($room->check_collision($x,$y));
-    
-    my $hero = new Person(name => 'Hero'.$_, x => $x, y => $y, max_hp => 1000, attack_range => 2, gfx_color=>$hero_clr);
-    $room->add_content($hero);
-    $hero->add_goal(new Goals::Wander);
-#    $hero->add_goal(new Goals::Gather(to_find=>'BadGuy'));
-#    $hero->add_goal(new Goals::Persecute(to_find=>'BadGuy'));
-
-    push @heroes, $hero;
-}
+create_heroes(1);
 
 my @monsters;
-for (1..100)
-{
-    my $x;
-    my $y;
-
-    do
-    {
-        $x = int(rand($room->width));
-        $y = int(rand($room->height));
-    } while ($room->check_collision($x,$y));
-
-    my $m = new Monster(name => 'Monster'.$_, x => $x, y => $y, max_hp => 400, gfx_color=>$monster_clr);
-    $m->add_goal(new Goals::Nothing);
-#    $m->add_goal(new Goals::Persecute(to_find=>'GoodGuy'));
-    $room->add_content($m);
-}
+create_monsters(1);
 
 my $app_rect = new SDL::Rect(-width=>640,-height=>480,-x=>0,-y=>0);
 my $ticks = $app->ticks();
 my $old_ticks = $ticks;
 
+my $turns = 0;
+
 while (1)
 {
+    if ($turns++ == 160)
+    {
+        create_monsters(scalar @heroes);
+        create_heroes(1);
+        foreach(@heroes)
+        {
+            $_->add_goal(new Goals::Find(find=>'BadGuy',
+                                         and_do=>sub{new Goals::Kill(target=>shift())},
+#                                         if=>sub{my $a = shift; $a->does('Targetable') && !$a->targeter}
+                                       ));
+        }
+        foreach(@monsters)
+        {
+            $_->add_goal(new Goals::Find(find=>'GoodGuy',and_do=>sub{new Goals::Kill(target=>shift())}));            
+        }
+        $turns = 0;
+    }
+    
     $app->fill($app_rect,$black);
     foreach (@{$room->all_contents})
     {
         if ($_->does('Living') && $_->does('GoalOriented') && $_->hp > 0 && $_->current_goal)
         {
-            $_->current_goal->do_goal;
+            $_->do_goal;
         }
         $app->fill($_->gfx_rect,$_->gfx_color);
 
@@ -94,7 +83,7 @@ while (1)
     $ticks = $app->ticks;
     if ($ticks-$old_ticks < 50)
     {
-        $app->delay(50 - ($ticks - $old_ticks));
+#        $app->delay(50 - ($ticks - $old_ticks));
     }
 }
 
@@ -115,4 +104,54 @@ sub check_events
     $event->pump();
     $event->poll();
     exit if $event->type == SDL_QUIT;
+}
+
+sub create_heroes
+{
+    my $num_heroes = shift;
+    for (1..$num_heroes)
+    {
+        my $x;
+        my $y;
+
+        do
+        {
+            $x = int(rand($room->width));
+            $y = int(rand($room->height));
+        } while ($room->check_collision($x,$y));
+    
+        my $hero = new Person(name => 'Hero'.@heroes, x => $x, y => $y, max_hp => 100, attack_range => 2, gfx_color=>$hero_clr);
+        $room->add_content($hero);
+        $hero->add_goal(new Goals::Wander);
+        $hero->add_goal(new Goals::Find(find=>'BadGuy',
+                                        and_do=>sub{new Goals::Kill(target=>shift())},
+#                                        and_do=>sub{new Goals::Pickup(target=>shift())},
+#                                        if=>sub{my $a = shift; $a->does('Targetable') && !$a->targeter}
+                                       ));
+
+        push @heroes, $hero;
+    }
+}
+
+sub create_monsters
+{
+    my $num_monsters = shift;
+    for (1..$num_monsters)
+    {
+        my $x;
+        my $y;
+
+        do
+        {
+            $x = int(rand($room->width));
+            $y = int(rand($room->height));
+        } while ($room->check_collision($x,$y));
+
+        my $m = new Monster(name => 'Monster'.@monsters, x => $x, y => $y, max_hp => 40, gfx_color=>$monster_clr);
+        $m->add_goal(new Goals::Nothing);
+        $m->add_goal(new Goals::Find(find=>'GoodGuy',and_do=>sub{new Goals::Kill(target=>shift())}));
+        $room->add_content($m);
+
+        push @monsters, $m;
+    }
 }
