@@ -24,7 +24,7 @@ sub do_goal
         $owner->current_goal->do_goal;
     }
 
-    if ($owner->distance($target) == 1)
+    if ($owner->distance($target) < 2)
     {
         $owner->add_item($target);
         $target->container->remove_content($target);
