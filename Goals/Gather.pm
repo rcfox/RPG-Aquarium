@@ -18,7 +18,7 @@ sub do_goal
     my $added = 0;
 
     my @choices = sort { $owner->distance($a) <=> $owner->distance($b) }
-                  grep {$_ != $self->owner && $_->does($self->to_find)}
+                  grep {$_ != $self->owner && $_->does('Targetable') && !$_->targeter && $_->does($self->to_find)}
                   @{$owner->container->all_contents};
 
     if (!@choices)
@@ -27,7 +27,9 @@ sub do_goal
         return;
     }
 
-    $owner->add_goal(new Goals::Pickup(target=>$choices[0]));
+    my $target = $choices[0];
+    $target->targeter($owner);
+    $owner->add_goal(new Goals::Pickup(target=>$target));
     $owner->current_goal->do_goal;
 }
 
