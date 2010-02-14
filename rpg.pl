@@ -46,8 +46,8 @@ while (1)
 {
     if ($turns++ == 160)
     {
-        create_monsters(scalar @heroes);
         create_heroes(1);
+        create_monsters(scalar @heroes);
         foreach(@heroes)
         {
             $_->add_goal(new Goals::Find(find=>'BadGuy',
@@ -98,14 +98,7 @@ sub create_heroes
     my $num_heroes = shift;
     for (1..$num_heroes)
     {
-        my $x;
-        my $y;
-
-        do
-        {
-            $x = int(rand($room->width));
-            $y = int(rand($room->height));
-        } while ($room->check_collision($x,$y));
+        my ($x,$y) = get_free_location();
     
         my $hero = new Person(name => 'Hero'.@heroes, x => $x, y => $y, max_hp => 100, attack_range => 2, gfx_color=>$hero_clr);
         $room->add_content($hero);
@@ -125,14 +118,7 @@ sub create_monsters
     my $num_monsters = shift;
     for (1..$num_monsters)
     {
-        my $x;
-        my $y;
-
-        do
-        {
-            $x = int(rand($room->width));
-            $y = int(rand($room->height));
-        } while ($room->check_collision($x,$y));
+        my ($x,$y) = get_free_location();
 
         my $m = new Monster(name => 'Monster'.@monsters, x => $x, y => $y, max_hp => 40, gfx_color=>$monster_clr);
         $m->add_goal(new Goals::Nothing);
@@ -141,4 +127,17 @@ sub create_monsters
 
         push @monsters, $m;
     }
+}
+
+sub get_free_location
+{
+    my $x;
+    my $y;
+    
+    do
+    {
+        $x = int(rand($room->width));
+        $y = int(rand($room->height));
+    } while ($room->check_collision($x,$y));
+    return ($x,$y);
 }
