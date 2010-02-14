@@ -1,12 +1,6 @@
 package Object;
 use Moose;
 
-with 'PhysicalLocation';
-
-has 'name' =>
-    (
-        is => 'rw',
-        isa => 'Str',
-    );
+with 'PhysicalLocation','Drawable';
 
 1;
