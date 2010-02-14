@@ -21,13 +21,12 @@ use Monster;
 use Object;
 use Room;
 
-use Goals::Gather;
-use Goals::Persecute;
 use Goals::Nothing;
 use Goals::Move;
 use Goals::Wander;
 use Goals::Find;
 use Goals::Pickup;
+use Goals::Kill;
 
 my $room = new Room(width => 160, height => 120);
 
@@ -83,19 +82,7 @@ while (1)
     $ticks = $app->ticks;
     if ($ticks-$old_ticks < 50)
     {
-#        $app->delay(50 - ($ticks - $old_ticks));
-    }
-}
-
-foreach (@heroes)
-{
-    print $_->name;
-    if ($_->hp > 0)
-    {
-        print " -> HP: ".$_->hp." Level: ".$_->level."\n";
-    } else
-    {
-        print " -> Dead\n";
+        $app->delay(50 - ($ticks - $old_ticks));
     }
 }
 
