@@ -7,7 +7,7 @@ use SDL::Surface;
 use SDL::Rect;
 use SDL::Color;
 
-my $app = new SDL::App(-title=>"RPG Aquarium", -width=>80, -height=>60, -depth=>16);
+my $app = new SDL::App(-title=>"RPG Aquarium", -width=>640, -height=>480, -depth=>16);
 my $event = new SDL::Event;
 
 my $hero_clr = new SDL::Color(-r=>0,-g=>0,-b=>255);
