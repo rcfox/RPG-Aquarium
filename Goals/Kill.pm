@@ -17,6 +17,13 @@ sub do_goal
     my $owner = $self->owner;
     my $target = $self->target;
 
+    if ($target->hp <= 0)
+    {
+        $owner->complete_goal;
+        $owner->current_goal->do_goal;
+        return;
+    }
+
     if ($owner->distance($target) <= $owner->attack_range)
     {
         $owner->attack($target);
@@ -25,11 +32,6 @@ sub do_goal
     {
         $owner->add_goal(new Goals::MoveToTarget(target=>$target));
         $owner->current_goal->do_goal;
-    }
-
-    if ($target->hp <= 0)
-    {
-        $owner->complete_goal;
     }
 }
 
