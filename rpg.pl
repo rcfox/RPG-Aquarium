@@ -7,7 +7,7 @@ use SDL::Surface;
 use SDL::Rect;
 use SDL::Color;
 
-my $app = new SDL::App(-title=>"RPG Aquarium", -width=>640, -height=>480, -depth=>16);
+my $app = new SDL::App(-title=>"RPG Aquarium", -width=>80, -height=>60, -depth=>16);
 my $event = new SDL::Event;
 
 my $hero_clr = new SDL::Color(-r=>0,-g=>0,-b=>255);
@@ -28,7 +28,7 @@ use Goals::Find;
 use Goals::Pickup;
 use Goals::Kill;
 
-my $room = new Room(width => 160, height => 120);
+my $room = new Room(width => $app->width/4, height => $app->height/4);
 
 my @heroes;
 create_heroes(1);
