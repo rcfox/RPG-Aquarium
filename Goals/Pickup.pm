@@ -18,6 +18,8 @@ sub do_goal
     my $owner = $self->owner;
     my $target = $self->target;
 
+    $target->targeter($owner);
+
     if (!$owner->container->contains_object($target))
     {
         $owner->complete_goal;
