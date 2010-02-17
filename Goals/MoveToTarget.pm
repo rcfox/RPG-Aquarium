@@ -6,7 +6,7 @@ with 'Goal', 'PhysicalLocation';
 has 'target' =>
     (
         is => 'rw',
-        isa => 'Living',
+        isa => 'PhysicalLocation',
         required => 1,
     );
 
