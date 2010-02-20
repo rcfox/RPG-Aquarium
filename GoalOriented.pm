@@ -1,6 +1,8 @@
 package GoalOriented;
 use Moose::Role;
 
+use Goal;
+
 has 'goal_stack' =>
     (
         is => 'rw',

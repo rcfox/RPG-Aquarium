@@ -1,6 +1,8 @@
 package Goal;
 use Moose::Role;
 
+use GoalOriented;
+
 has 'subgoal' =>
     (
         is => 'rw',
