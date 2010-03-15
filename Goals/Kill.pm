@@ -17,7 +17,7 @@ sub do_goal
     my $owner = $self->owner;
     my $target = $self->target;
 
-    if ($target->hp <= 0)
+    if (!$owner->container->contains_object($target) || $target->hp <= 0)
     {
         $owner->complete_goal;
         $owner->current_goal->do_goal;
