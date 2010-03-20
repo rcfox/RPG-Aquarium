@@ -2,12 +2,32 @@ package Container;
 use Moose::Role;
 
 use AI::Pathfinding::AStar::Rectangle;
+use Algorithm::QuadTree;
 
-has 'contents' =>
+has 'quad_tree' =>
     (
-        is => 'rw',
-        isa => 'HashRef[PhysicalLocation]',
-        default => sub{{}},
+	is => 'rw',
+	isa => 'Algorithm::QuadTree',
+	lazy => 1,
+	default => sub
+	{
+	    my $self = shift;
+	    Algorithm::QuadTree->new(-xmin=>0,-ymin=>0,-xmax=>$self->width,-ymax=>$self->height,-depth=>1);
+	},
+    );
+
+has 'objrefs' =>
+    (
+	is => 'rw',
+	isa => 'Int',
+	default => 0,
+    );
+
+has 'objmap' =>
+    (
+	is => 'rw',
+	isa => 'HashRef[Int]',
+	default => sub{{}},
     );
 
 has 'width' =>
@@ -53,10 +73,14 @@ sub add_content
     my $self = shift;
     my $toadd = shift;
 
-    $self->contents->{$toadd->x}->{$toadd->y} = $toadd;
+    $self->objmap->{$toadd} = $self->objrefs;
+    $self->objmap->{$self->objrefs} = $toadd;
+    
+    $self->quad_tree->add($self->objrefs,$toadd->x,$toadd->y,$toadd->x,$toadd->y);
     $self->map->set_passability($toadd->x,$toadd->y,0);
 
     $toadd->container($self);
+    $self->objrefs($self->objrefs+1);
 }
 
 sub remove_content
@@ -64,26 +88,15 @@ sub remove_content
     my $self = shift;
     my $toadd = shift;
 
-    $self->map->set_passability($toadd->x,$toadd->y,1);
-    delete($self->contents->{$toadd->x}->{$toadd->y});
+    $self->map->set_passability($toadd->x,$toadd->y,1);    
+    $self->quad_tree->delete($self->objmap->{$toadd});
 }
 
 sub all_contents
 {
     my $self = shift;
-    my @c;
-
-    use Data::Dumper;
-    
-    foreach my $x (keys %{$self->contents})
-    {        
-        foreach my $y (keys %{$self->contents->{$x}})
-        {
-            push @c, $self->contents->{$x}->{$y};
-        }
-    }
-
-    return \@c;
+    my @transformed = map { $self->objmap->{$_} } @{$self->quad_tree->getEnclosedObjects(0,0,$self->width,$self->height)};
+    return \@transformed;
 }
 
 sub contains_object
@@ -103,8 +116,8 @@ sub place_content
     my $ny = shift;
 
     $self->map->set_passability($content->x,$content->y,1);
-    delete($self->contents->{$content->x}->{$content->y});
-    $self->contents->{$nx}->{$ny} = $content;
+    $self->quad_tree->delete($self->objmap->{$content});
+    $self->quad_tree->add($self->objmap->{$content},$nx,$ny,$nx,$ny);
     $self->map->set_passability($nx,$ny,0);
 }
 
@@ -116,8 +129,20 @@ sub check_collision
 
     return 1 if ($x < 0 || $x > $self->width-1 || $y < 0 || $y > $self->height-1);
 
-    my $val = $self->contents->{$x}->{$y};
-    return ($val ? 1 : 0);
+    my @val = @{$self->quad_tree->getEnclosedObjects($x,$y,$x,$y)};
+    if (@val == 1)
+    {
+	return 1;
+    }
+    elsif (@val > 1)
+    {
+	for(@val)
+	{
+	    my $obj = $self->objmap->{$_};
+	    return 1 if ($obj->x == $x && $obj->y == $y);
+	}
+    }
+    return 0;
 }
 
 1;
