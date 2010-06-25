@@ -20,7 +20,6 @@ sub do_goal
     if (!$owner->container->contains_object($target) || $target->hp <= 0)
     {
         $owner->complete_goal;
-        $owner->current_goal->do_goal;
         return;
     }
 
