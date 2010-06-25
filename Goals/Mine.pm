@@ -32,7 +32,6 @@ sub do_goal
             $owner->add_item($mined);
             print $owner->name.": mined some ore.\n";
             $owner->complete_goal;
-            $owner->complete_goal;
         }
         else
         {

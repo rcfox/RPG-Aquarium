@@ -25,7 +25,8 @@ sub do_goal
     else
     {
         $owner->add_goal(new Goals::Find(find=>'Mineable',
-                                         and_do=>sub{new Goals::Mine(target=>shift())}));
+                                         and_do=>sub{new Goals::Mine(target=>shift())},
+                                         or_else=>sub{new Goals::Wander()}));
 
         $owner->current_goal->do_goal;
     }

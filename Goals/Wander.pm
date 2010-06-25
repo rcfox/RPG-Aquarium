@@ -16,6 +16,8 @@ sub do_goal
         $y = (int(rand(3))-1)*int(rand(10))+$owner->y;
     } while($owner->container->check_collision($x,$y));
 
+    $owner->complete_goal;
+
     $owner->add_goal(new Goals::Move(x=>$x,y=>$y));
 }
 

@@ -32,7 +32,10 @@ sub do_goal
         elsif ($self->stage == 2)
         {
             $self->stage(1);
-            $owner->add_goal(new Goals::Find(find=>'BadGuy', and_do=>sub{new Goals::Kill(target=>shift())}));
+            $owner->add_goal(new Goals::Find(find=>'BadGuy',
+                                             and_do=>sub{new Goals::Kill(target=>shift())},
+                                             or_else=>sub{new Goals::Wander()},
+                                             times=>3));
         }
     }
     else

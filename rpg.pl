@@ -44,7 +44,7 @@ my $quest_guy = create_hero();
 $quest_guy->add_goal(new Goals::Nothing);
 
 my @heroes;
-for(1..1)
+for(1..40)
 {
     my $h = create_hero();
     $h->add_goal(new Goals::Quest(giver=>$quest_guy));
@@ -140,8 +140,11 @@ sub create_monster
     my ($x,$y) = get_free_location();
     
     my $m = new Monster(name => 'Monster'.@monsters, x => $x, y => $y, max_hp => 40, gfx_color=>$monster_clr);
-    $m->add_goal(new Goals::Nothing);
-    #        $m->add_goal(new Goals::Find(find=>'GoodGuy', and_do=>sub{new Goals::Kill(target=>shift())}));
+    #$m->add_goal(new Goals::Nothing);
+    $m->add_goal(new Goals::Find(find=>'GoodGuy',
+                                 and_do=>sub{new Goals::Kill(target=>shift())},
+                                 or_else=>sub{new Goals::Wait()},
+                                 times=>10));
     $room->add_content($m);
 
     return $m;
