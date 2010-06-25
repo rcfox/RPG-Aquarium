@@ -6,6 +6,7 @@ use warnings;
 use SDL;
 use SDL::App;
 use SDL::Event;
+use SDL::Events;
 use SDL::Surface;
 use SDL::Rect;
 use SDL::Color;
@@ -13,11 +14,11 @@ use SDL::Color;
 my $app = new SDL::App(-title=>"RPG Aquarium", -width=>640, -height=>480, -depth=>16);
 my $event = new SDL::Event;
 
-my $hero_clr = new SDL::Color(-r=>0,-g=>0,-b=>255);
-my $monster_clr = new SDL::Color(-r=>255,-g=>0,-b=>0);
-my $big_monster_clr = new SDL::Color(-r=>255,-g=>255,-b=>0);
-my $object_clr = new SDL::Color(-r=>100,-g=>100,-b=>100);
-my $black = new SDL::Color(-r=>0,-g=>0,-b=>0);
+my $hero_clr = SDL::Video::map_RGB($app->format(),0,0,255);
+my $monster_clr = SDL::Video::map_RGB($app->format(),255,0,0);
+my $big_monster_clr = SDL::Video::map_RGB($app->format(),255,255,0);
+my $object_clr = SDL::Video::map_RGB($app->format(),100,100,100);
+my $black = SDL::Video::map_RGB($app->format(),0,0,0);
 
 use Person;
 use Monster;
@@ -37,7 +38,7 @@ use Goals::Quest;
 
 use OreDeposit;
 
-my $room = new Room(width => $app->width/4, height => $app->height/4);
+my $room = new Room(width => $app->w/4, height => $app->h/4);
 
 my $quest_guy = create_hero();
 $quest_guy->add_goal(new Goals::Nothing);
@@ -61,7 +62,7 @@ for(1..100)
     create_ore_deposit();
 }
 
-my $app_rect = new SDL::Rect(-width=>$app->width,-height=>$app->height,-x=>0,-y=>0);
+my $app_rect = new SDL::Rect(0,0,$app->w,$app->h);
 my $ticks = $app->ticks();
 my $old_ticks = $ticks;
 
@@ -74,19 +75,19 @@ while (1)
         push @monsters, create_monster();
         $turns = 0;
     }
-    $app->fill($app_rect,$black);
+    SDL::Video::fill_rect($app,$app_rect,$black);
     foreach (@{$room->all_contents})
     {
         if ($_->does('GoalOriented') && $_->current_goal)
         {
             $_->do_goal;
         }
-        $app->fill($_->gfx_rect,$_->gfx_color);
+        SDL::Video::fill_rect($app,$_->gfx_rect,$_->gfx_color);
 
         # Increase response time for when there are a lot of things in the room.
         check_events();
     }
-    $app->update($app_rect);
+    SDL::Video::update_rect($app,0,0,$app->w,$app->h);
 
     check_events();
 
@@ -100,8 +101,8 @@ while (1)
 
 sub check_events
 {
-    $event->pump();
-    $event->poll();
+	SDL::Events::pump_events();
+	SDL::Events::poll_event($event);
     exit if $event->type == SDL_QUIT;
     if ($event->type == SDL_MOUSEBUTTONDOWN)
     {
